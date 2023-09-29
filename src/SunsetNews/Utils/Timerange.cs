@@ -6,4 +6,9 @@ internal record struct TimeRange(TimeOnly Start, TimeOnly End)
 	{
 		return value >= Start && value <= End;
 	}
+
+	public override string ToString()
+	{
+		return $"{Start:HH:mm} - {End:HH:mm}";
+	}
 }

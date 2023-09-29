@@ -39,7 +39,7 @@ internal sealed class AccuWeatherDataSource : IWeatherDataSource
 
 		var today = DateOnly.FromDateTime(DateTime.UtcNow);
 		var thatDay = today.AddDays(dayOffset);
-		var cacheKey = new CacheKey(today, city);
+		var cacheKey = new CacheKey(thatDay, city);
 		try
 		{
 			_logger.Log(LogLevel.Debug, WeatherRequestedLOG, "Weather requested for {City} on date {ThatDay} ({Offset} days in future)", city, thatDay, dayOffset);

@@ -11,7 +11,7 @@ using SunsetNews.Weather;
 var config = new ConfigurationBuilder().AddJsonFile("config.json").Build();
 
 var services = new ServiceCollection()
-	.AddLogging(builder => builder.AddConsole())
+	.AddLogging(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Trace))
 
 	.Configure<DefaultTelegramClient.Options>(config.GetSection("Telegram"))
 	.AddSingleton<ITelegramClient, DefaultTelegramClient>()
@@ -19,7 +19,7 @@ var services = new ServiceCollection()
 	.AddSingleton<IUserSequenceProcessor, YieldUserSequenceProcessor>()
 	.AddSingleton<IUserSequenceRepository, ReflectionUserSequenceRepository>()
 
-	.AddTransient<ISequenceModule, DemoSequenceModule>()
+	.AddTransient<ISequenceModule, WeatherSequenceModule>()
 
 	.Configure<AccuWeatherDataSource.Options>(config.GetSection("Weather:AccuWeather"))
 	.AddTransient<IWeatherDataSource, AccuWeatherDataSource>()
