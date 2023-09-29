@@ -6,6 +6,7 @@ using SunsetNews.Telegram;
 using SunsetNews.Telegram.Implementation;
 using SunsetNews.UserSequences;
 using SunsetNews.UserSequences.ReflectionRepository;
+using SunsetNews.Weather;
 
 var config = new ConfigurationBuilder().AddJsonFile("config.json").Build();
 
@@ -19,7 +20,11 @@ var services = new ServiceCollection()
 	.AddSingleton<IUserSequenceRepository, ReflectionUserSequenceRepository>()
 
 	.AddTransient<ISequenceModule, DemoSequenceModule>()
+
+	.Configure<AccuWeatherDataSource.Options>(config.GetSection("Weather:AccuWeather"))
+	.AddTransient<IWeatherDataSource, AccuWeatherDataSource>()
 	.BuildServiceProvider();
+
 
 var client = services.GetRequiredService<ITelegramClient>();
 
