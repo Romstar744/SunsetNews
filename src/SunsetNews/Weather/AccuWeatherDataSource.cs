@@ -107,7 +107,7 @@ internal sealed class AccuWeatherDataSource : IWeatherDataSource
 					var snowProbability = forecast["Day"]["SnowProbability"]?.ToObject<int?>() ?? 0;
 
 					var rainValue = forecast["Day"]["Rain"]["Value"]?.ToObject<int?>() ?? 0;
-					var snowValue = forecast["Day"]["Snow"]["Value"]?.ToObject<int?>() ?? 0;
+					var snowValue = (forecast["Day"]["Snow"]["Value"]?.ToObject<int?>() ?? 0) * 10; //from cm to mm
 
 					WeatherData.PrecipitationType precipitationType;
 					int precipitationAmount;
