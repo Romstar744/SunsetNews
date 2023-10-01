@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SunsetNews.Localization;
 using SunsetNews.Telegram;
 using SunsetNews.UserSequences.UserWaitConditions;
 using System.Collections.Concurrent;
@@ -10,12 +11,14 @@ namespace SunsetNews.UserSequences
 		private readonly ConcurrentDictionary<long, ChatState> _chatsState = new();
 		private readonly ILogger<YieldUserSequenceProcessor> _logger;
 		private readonly IUserSequenceRepository _repository;
+		private readonly ICultureSource _cultureSource;
 
 
-		public YieldUserSequenceProcessor(ILogger<YieldUserSequenceProcessor> logger, IUserSequenceRepository repository)
+		public YieldUserSequenceProcessor(ILogger<YieldUserSequenceProcessor> logger, IUserSequenceRepository repository, ICultureSource cultureSource)
 		{
 			_logger = logger;
 			_repository = repository;
+			_cultureSource = cultureSource;
 		}
 
 
@@ -63,6 +66,8 @@ namespace SunsetNews.UserSequences
 		private async Task ProgressSequence(ChatState state)
 		{
 			var seq = state.CurrentSequence ?? throw new InvalidOperationException("No sequence to progress");
+
+			_cultureSource.SetupCulture(state.Chat);
 
 			var isFinished = await seq.MoveNextAsync() == false;
 
