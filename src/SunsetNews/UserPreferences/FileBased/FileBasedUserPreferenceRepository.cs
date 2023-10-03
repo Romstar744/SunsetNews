@@ -83,7 +83,7 @@ internal sealed class FileBasedUserPreferenceRepository : IUserPreferenceReposit
 	{
 		var files = Directory.EnumerateFiles(directory, "*.json");
 
-		var data = new Dictionary<long, TPreferenceModel>();
+		var data = new Dictionary<UserZoneId, TPreferenceModel>();
 
 		foreach (var file in files)
 		{
@@ -127,7 +127,7 @@ internal sealed class FileBasedUserPreferenceRepository : IUserPreferenceReposit
 		}
 	}
 
-	private void DispatchModification<TPreferenceModel>(IUserChat user, TPreferenceModel model) where TPreferenceModel : class, new()
+	private void DispatchModification<TPreferenceModel>(UserZoneId user, TPreferenceModel model) where TPreferenceModel : class, new()
 	{
 		var task = new ValueWriteTask(Path.Combine(_options.BaseDirectory, typeof(TPreferenceModel).FullName!, $"{user.Id}.json"), model);
 		_tasks.Enqueue(task);
@@ -150,18 +150,18 @@ internal sealed class FileBasedUserPreferenceRepository : IUserPreferenceReposit
 	private sealed class UserPreference<TPreferenceModel> : UserPreference, IUserPreference<TPreferenceModel> where TPreferenceModel : class, new()
 	{
 		private readonly FileBasedUserPreferenceRepository _owner;
-		private readonly Dictionary<long, TPreferenceModel> _cachedValues;
+		private readonly Dictionary<UserZoneId, TPreferenceModel> _cachedValues;
 		private readonly Mutex _mutex = new();
 
 
-		public UserPreference(FileBasedUserPreferenceRepository owner, Dictionary<long, TPreferenceModel> initialValues)
+		public UserPreference(FileBasedUserPreferenceRepository owner, Dictionary<UserZoneId, TPreferenceModel> initialValues)
 		{
 			_owner = owner;
 			_cachedValues = initialValues;
 		}
 
 
-		public TPreferenceModel Get(IUserChat user)
+		public TPreferenceModel Get(UserZoneId user)
 		{
 			_mutex.WaitOne();
 			try
@@ -176,7 +176,7 @@ internal sealed class FileBasedUserPreferenceRepository : IUserPreferenceReposit
 			}
 		}
 
-		public void Modify(IUserChat user, Func<TPreferenceModel, TPreferenceModel> modificationAction)
+		public void Modify(UserZoneId user, Func<TPreferenceModel, TPreferenceModel> modificationAction)
 		{
 			_mutex.WaitOne();
 			try
@@ -201,5 +201,7 @@ internal sealed class FileBasedUserPreferenceRepository : IUserPreferenceReposit
 				_mutex.ReleaseMutex();
 			}
 		}
+
+		public IReadOnlyDictionary<UserZoneId, TPreferenceModel> GetAll() => _cachedValues;
 	}
 }

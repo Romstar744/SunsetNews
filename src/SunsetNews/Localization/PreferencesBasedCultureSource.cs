@@ -16,6 +16,6 @@ internal sealed class PreferencesBasedCultureSource : ICultureSource
 
 	public CultureInfo GetCultureInfoFor(IUserChat user)
 	{
-		return _preference.Get(user).Culture;
+		return _preference.Get(user.Id).Culture;
 	}
 }

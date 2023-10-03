@@ -13,12 +13,17 @@ internal sealed class DIUserPreference<TPreferenceModel> : IUserPreference<TPref
 	}
 
 
-	public TPreferenceModel Get(IUserChat user)
+	public TPreferenceModel Get(UserZoneId user)
 	{
 		return _preference.Get(user);
 	}
 
-	public void Modify(IUserChat user, Func<TPreferenceModel, TPreferenceModel> modificationAction)
+	public IReadOnlyDictionary<UserZoneId, TPreferenceModel> GetAll()
+	{
+		return _preference.GetAll();
+	}
+
+	public void Modify(UserZoneId user, Func<TPreferenceModel, TPreferenceModel> modificationAction)
 	{
 		_preference.Modify(user, modificationAction);
 	}

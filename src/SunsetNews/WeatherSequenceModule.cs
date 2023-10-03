@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Localization;
+using Newtonsoft.Json;
 using SunsetNews.Localization;
+using SunsetNews.Scheduling;
 using SunsetNews.Telegram;
 using SunsetNews.UserPreferences;
 using SunsetNews.UserSequences.ReflectionRepository;
@@ -9,20 +11,32 @@ using System.Globalization;
 
 namespace SunsetNews;
 
-internal sealed class WeatherSequenceModule : ISequenceModule
+internal sealed class WeatherSequenceModule : ISequenceModule, ISchedulerModule
 {
+	private readonly IScheduler _scheduler;
 	private readonly IWeatherDataSource _source;
 	private readonly IStringLocalizer<WeatherSequenceModule> _localizer;
 	private readonly IUserPreferenceRepository _userPreferences;
 
 
-	public WeatherSequenceModule(IWeatherDataSource source, IStringLocalizer<WeatherSequenceModule> localizer, IUserPreferenceRepository userPreferences)
+	public WeatherSequenceModule(IScheduler scheduler, IWeatherDataSource source, IStringLocalizer<WeatherSequenceModule> localizer, IUserPreferenceRepository userPreferences)
 	{
+		_scheduler = scheduler;
 		_source = source;
 		_localizer = localizer;
 		_userPreferences = userPreferences;
 	}
 
+
+	public string ModuleId => nameof(WeatherSequenceModule);
+
+
+	[UserSequence("schedule")]
+	public async IAsyncEnumerator<UserWaitCondition> ScheduleTask(IMessage awakeMessage)
+	{
+		_scheduler.Plan(awakeMessage.Chat.Id, new SchedulerTask(this, "demo", 55), new TimeOnly(19, 25, 30, 0, 0), SchedulerDayOfWeek.AllDays);
+		yield break;
+	}
 
 	[UserSequence("weather")]
 	public async IAsyncEnumerator<UserWaitCondition> RequestWeather(IMessage awakeMessage)
@@ -52,7 +66,7 @@ internal sealed class WeatherSequenceModule : ISequenceModule
 		var code = cultureMessage.CapturedMessage.Content;
 
 		var preference = _userPreferences.LoadPreference<CulturePreferences>();
-		preference.Modify(awakeMessage.Chat, value => value with { Culture = new(code) });
+		preference.Modify(awakeMessage.Chat.Id, value => value with { Culture = new(code) });
 	}
 
 	private async Task PrintForecast(IUserChat chat, WeatherData forecast, string title)
@@ -69,5 +83,18 @@ internal sealed class WeatherSequenceModule : ISequenceModule
 		""";
 
 		await chat.SendMessageAsync(new MessageSendModel(content));
+	}
+
+	public void ExecuteFunction(string functionName, object? parameter)
+	{
+		switch (functionName)
+		{
+			case "demo":
+				Console.WriteLine(JsonConvert.SerializeObject(parameter));
+				break;
+
+			default:
+				throw new ArgumentException("No function with given name", nameof(functionName));
+		}
 	}
 }

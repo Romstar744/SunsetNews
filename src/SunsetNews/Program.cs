@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SunsetNews;
 using SunsetNews.Localization;
+using SunsetNews.Scheduling;
+using SunsetNews.Scheduling.UserPreferencesBased;
 using SunsetNews.Telegram;
 using SunsetNews.Telegram.Implementation;
 using SunsetNews.UserPreferences;
@@ -33,12 +35,18 @@ var services = new ServiceCollection()
 
 	.AddTransient<ICultureSource, PreferencesBasedCultureSource>()
 
+	.AddSingleton<IScheduler, UserPreferencesBasedScheduler>()
+
 	.AddTransient<ISequenceModule, WeatherSequenceModule>()
+	.AddTransient<ISchedulerModule, WeatherSequenceModule>()
 
 	.BuildServiceProvider();
 
 var userPreferenceRepository = services.GetRequiredService<IUserPreferenceRepository>();
 await userPreferenceRepository.PreloadAllAsync();
+
+var scheduler = services.GetRequiredService<IScheduler>();
+scheduler.Initialize(services.GetServices<ISchedulerModule>());
 
 var client = services.GetRequiredService<ITelegramClient>();
 

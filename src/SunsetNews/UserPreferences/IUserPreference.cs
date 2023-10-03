@@ -1,10 +1,10 @@
-﻿using SunsetNews.Telegram;
-
-namespace SunsetNews.UserPreferences;
+﻿namespace SunsetNews.UserPreferences;
 
 internal interface IUserPreference<TPreferenceModel> where TPreferenceModel : class, new()
 {
-	public TPreferenceModel Get(IUserChat user);
+	public TPreferenceModel Get(UserZoneId user);
 
-	public void Modify(IUserChat user, Func<TPreferenceModel, TPreferenceModel> modificationAction);
+	public IReadOnlyDictionary<UserZoneId, TPreferenceModel> GetAll();
+
+	public void Modify(UserZoneId user, Func<TPreferenceModel, TPreferenceModel> modificationAction);
 }
