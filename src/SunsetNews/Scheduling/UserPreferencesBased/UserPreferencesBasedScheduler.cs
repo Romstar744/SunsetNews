@@ -72,7 +72,7 @@ internal sealed class UserPreferencesBasedScheduler : IScheduler, IDisposable
 
 				foreach (var planItemPair in userPlans.Value.Where(needExecuteNow))
 				{
-					var modificationStore = new Dictionary<SchedulerTaskId, SchedulerPlanItem>();
+					var modificationStore = new Dictionary<Guid, SchedulerPlanItem>();
 
 					var planItem = planItemPair.Value;
 					if (_modules.TryGetValue(planItem.SchedulerModuleId, out var module))
@@ -97,15 +97,18 @@ internal sealed class UserPreferencesBasedScheduler : IScheduler, IDisposable
 
 
 
-		static bool needExecuteNow(KeyValuePair<SchedulerTaskId, SchedulerPlanItem> planItemPair)
+		static bool needExecuteNow(KeyValuePair<Guid, SchedulerPlanItem> planItemPair)
 		{
 			var planItem = planItemPair.Value;
 			var today = DateTimeOffset.UtcNow;
 
+			if (DateOnly.FromDateTime(today.DateTime) == DateOnly.FromDateTime(planItem.LastExecution.DateTime))
+				return false;
+
 			var todayWeekDay = today.DayOfWeek.ToSchedulerDayOfWeek();
 			var todayTime = TimeOnly.FromDateTime(today.DateTime);
 
-			return ((SchedulerDayOfWeek)planItem.Days).HasFlag(todayWeekDay) && planItem.UtcTime >= todayTime;
+			return ((SchedulerDayOfWeek)planItem.Days).HasFlag(todayWeekDay) && todayTime >= planItem.UtcTime;
 		}
 	}
 }

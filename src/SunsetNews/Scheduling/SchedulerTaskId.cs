@@ -11,4 +11,9 @@ internal readonly record struct SchedulerTaskId(Guid Id)
 	{
 		return id.Id;
 	}
+
+	public override string ToString()
+	{
+		return $"{{SchedulerTaskId {Id}}}";
+	}
 }
