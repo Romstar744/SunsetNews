@@ -1,25 +1,33 @@
-﻿using Newtonsoft.Json;
-using SunsetNews.Telegram;
+﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using SunsetNews.UserPreferences;
-using System.Linq;
 
 namespace SunsetNews.Scheduling.UserPreferencesBased;
 
 internal sealed class UserPreferencesBasedScheduler : IScheduler, IDisposable
 {
-	private readonly int WorkThreadTimeoutMS = 10000;
+	public static readonly EventId InitializedLOG = new(11, "Initialized");
+	public static readonly EventId TaskCanceledLOG = new(12, "TaskCanceled");
+	public static readonly EventId TaskPlannedLOG = new(13, "TaskPlanned");
+	public static readonly EventId TaskExecutedLOG = new(14, "TaskExecuted");
+	public static readonly EventId TaskExecutionFailLOG = new(21, "TaskExecutionFail");
+	public static readonly EventId TaskModuleNotFoundLOG = new(22, "TaskModuleNotFound");
+
+
+	public static readonly int WorkThreadTimeoutMS = 10000;
 
 
 	private readonly Dictionary<string, ISchedulerModule> _modules = new();
 	private readonly IUserPreference<SchedulerPlanItemStore> _userPreference;
+	private readonly ILogger<UserPreferencesBasedScheduler> _logger;
 	private readonly CancellationTokenSource _threadCTS = new();
 	private readonly Thread _workThread;
 
 
-	public UserPreferencesBasedScheduler(IUserPreference<SchedulerPlanItemStore> userPreference)
+	public UserPreferencesBasedScheduler(IUserPreference<SchedulerPlanItemStore> userPreference, ILogger<UserPreferencesBasedScheduler> logger)
 	{
 		_userPreference = userPreference;
-
+		_logger = logger;
 		_workThread = new Thread(ThreadWorker);
 	}
 
@@ -30,11 +38,14 @@ internal sealed class UserPreferencesBasedScheduler : IScheduler, IDisposable
 			_modules.Add(item.ModuleId, item);
 
 		_workThread.Start();
+
+		_logger.Log(LogLevel.Information, InitializedLOG, "Scheduler is initialized with this modules: [{Modules}]", string.Join(", ", modules.Select(s => s.ModuleId)));
 	}
 
 	public void Cancel(UserZoneId user, SchedulerTaskId id)
 	{
 		_userPreference.Modify(user, store => store.Remove(id));
+		_logger.Log(LogLevel.Debug, TaskCanceledLOG, "Task {Task} has been canceled", id);
 	}
 
 	public SchedulerTaskId Plan(UserZoneId user, SchedulerTask task, TimeOnly utcTime, SchedulerDayOfWeek days)
@@ -46,6 +57,8 @@ internal sealed class UserPreferencesBasedScheduler : IScheduler, IDisposable
 			(int)days, utcTime, DateTimeOffset.UtcNow);
 
 		_userPreference.Modify(user, store => store.Add(id, newItem));
+
+		_logger.Log(LogLevel.Debug, TaskPlannedLOG, "Task {Task} has been planned with parameters: {PlanItem}", id, newItem);
 
 		return id;
 	}
@@ -70,15 +83,13 @@ internal sealed class UserPreferencesBasedScheduler : IScheduler, IDisposable
 				if (token.IsCancellationRequested)
 					return;
 
+				var modificationStore = new Dictionary<Guid, SchedulerPlanItem>();
+
 				foreach (var planItemPair in userPlans.Value.Where(needExecuteNow))
 				{
-					var modificationStore = new Dictionary<Guid, SchedulerPlanItem>();
-
 					var planItem = planItemPair.Value;
 					if (_modules.TryGetValue(planItem.SchedulerModuleId, out var module))
 					{
-						modificationStore.Add(planItemPair.Key, planItem with { LastExecution = DateTimeOffset.UtcNow });
-
 						try
 						{
 							var parameter = JsonConvert.DeserializeObject(planItem.ParameterJson, Type.GetType(planItem.ParameterTypeAsmQName, throwOnError: true)!);
@@ -86,12 +97,20 @@ internal sealed class UserPreferencesBasedScheduler : IScheduler, IDisposable
 						}
 						catch (Exception ex)
 						{
-							Console.WriteLine(ex); //TODO: log error
+							_logger.Log(LogLevel.Error, TaskExecutionFailLOG, ex, "Task {Task} finished with error (Module: {Module})", planItemPair.Key, planItem.SchedulerModuleId);
 						}
 					}
+					else
+					{
+						_logger.Log(LogLevel.Warning, TaskModuleNotFoundLOG, "Scheduler has no module named {ModuleId} for Task {Task}. Execution skipped", planItem.SchedulerModuleId, planItemPair.Key);
+					}
 
-					_userPreference.Modify(userPlans.Key, store => store.SetItems(modificationStore));
+					modificationStore.Add(planItemPair.Key, planItem with { LastExecution = DateTimeOffset.UtcNow });
+					_logger.Log(LogLevel.Debug, TaskExecutedLOG, "Task {Task} execution finished", planItemPair.Key);
 				}
+				
+				if (modificationStore.Count > 0)
+					_userPreference.Modify(userPlans.Key, store => store.SetItems(modificationStore));
 			}
 		}
 

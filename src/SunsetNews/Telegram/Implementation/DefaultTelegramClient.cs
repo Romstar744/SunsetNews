@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SunsetNews.Telegram;
 using SunsetNews.UserSequences;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
@@ -11,6 +10,10 @@ namespace SunsetNews.Telegram.Implementation;
 
 internal sealed class DefaultTelegramClient : ITelegramClient, IUpdateHandler
 {
+	public static readonly EventId ClientConnectedLOG = new(11, "ClientConnected");
+	public static readonly EventId PollingErrorLOG = new(21, "PollingError");
+
+
 	private readonly Options _options;
 	private readonly TelegramBotClient _bot;
 	private readonly ILogger<DefaultTelegramClient> _logger;
@@ -28,6 +31,7 @@ internal sealed class DefaultTelegramClient : ITelegramClient, IUpdateHandler
 	public Task ConnectAsync()
 	{
 		_bot.StartReceiving(this);
+		_logger.Log(LogLevel.Information, ClientConnectedLOG, "Telegram client connected with id {BotId}", _bot.BotId);
 		return Task.CompletedTask;
 	}
 
@@ -38,7 +42,7 @@ internal sealed class DefaultTelegramClient : ITelegramClient, IUpdateHandler
 
 	public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
 	{
-		_logger.Log(LogLevel.Error, exception, "Exception while polling");
+		_logger.Log(LogLevel.Error, PollingErrorLOG, exception, "Exception while polling");
 		return Task.CompletedTask;
 	}
 

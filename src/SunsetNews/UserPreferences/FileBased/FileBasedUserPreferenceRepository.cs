@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using SunsetNews.Telegram;
 using System.Collections.Concurrent;
@@ -8,18 +9,27 @@ namespace SunsetNews.UserPreferences.FileBased;
 
 internal sealed class FileBasedUserPreferenceRepository : IUserPreferenceRepository
 {
+	public static readonly EventId PreferencesPreLoadedLOG = new(11, "PreferencesPreLoaded");
+	public static readonly EventId PreferenceRequestedLOG = new(12, "PreferencesRequested");
+	public static readonly EventId PreferencesLoadingFailLOG = new(21, "PreferencesLoadingFail");
+	public static readonly EventId PreferencesSaveFailLOG = new(22, "PreferencesSaveFail");
+	public static readonly EventId PreferenceModifiedLOG = new(31, "PreferenceModified");
+
+
 	private readonly Options _options;
 	private readonly Dictionary<Type, UserPreference> _cache = new();
 	private readonly ConcurrentQueue<ValueWriteTask> _tasks = new();
 	private readonly AutoResetEvent _onNewWriteTask = new(false);
 	private readonly Thread _dataWriteThread;
+	private readonly ILogger<FileBasedUserPreferenceRepository> _logger;
 	private bool _disposed = false;
 
 
-	public FileBasedUserPreferenceRepository(IOptions<Options> options)
+	public FileBasedUserPreferenceRepository(IOptions<Options> options, ILogger<FileBasedUserPreferenceRepository> _logger)
 	{
 		_options = options.Value;
 		_dataWriteThread = new(DataWriteThreadWorker);
+		this._logger = _logger;
 	}
 
 	public void Dispose()
@@ -51,31 +61,42 @@ internal sealed class FileBasedUserPreferenceRepository : IUserPreferenceReposit
 				await (Task)GetType().GetMethod(nameof(PreloadPreferenceAsync), BindingFlags.NonPublic | BindingFlags.Instance)!
 					.MakeGenericMethod(modelType)
 					.Invoke(this, new object[] { directory })!;
+
+				_logger.Log(LogLevel.Information, PreferencesPreLoadedLOG, "Preferences of type {Model type} loaded for all users", modelType.FullName);
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				//TODO: failed to load case
+				_logger.Log(LogLevel.Critical, PreferencesLoadingFailLOG, ex, "Enable to load data directory {DirectoryPath}", directory);
+				throw;
 			}
 		}
 	}
 
+	// Interface method
 	public IUserPreference<TPreferenceModel> LoadPreference<TPreferenceModel>() where TPreferenceModel : class, new()
 	{
 		var type = typeof(TPreferenceModel);
 
-		if (_cache.TryGetValue(type, out var value))
+		try
 		{
-			return (UserPreference<TPreferenceModel>)value;
-		}
-		else
-		{
-			var directory = Path.Combine(_options.BaseDirectory, type.FullName!);
-			Directory.CreateDirectory(directory);
-			File.WriteAllText(Path.Combine(directory, "model.ini"), type.AssemblyQualifiedName);
+			if (_cache.TryGetValue(type, out var value))
+			{
+				return (UserPreference<TPreferenceModel>)value;
+			}
+			else
+			{
+				var directory = Path.Combine(_options.BaseDirectory, type.FullName!);
+				Directory.CreateDirectory(directory);
+				File.WriteAllText(Path.Combine(directory, "model.ini"), type.AssemblyQualifiedName);
 
-			var preference = new UserPreference<TPreferenceModel>(this, new());
-			_cache.Add(type, preference);
-			return preference;
+				var preference = new UserPreference<TPreferenceModel>(this, new());
+				_cache.Add(type, preference);
+				return preference;
+			}
+		}
+		finally
+		{
+			_logger.Log(LogLevel.Trace, PreferenceRequestedLOG, "Preference of type {ModelType} has been requested", type.FullName);
 		}
 	}
 
@@ -96,9 +117,9 @@ internal sealed class FileBasedUserPreferenceRepository : IUserPreferenceReposit
 				if (preferenceModel is not null)
 					data.Add(userId, preferenceModel);
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				//TODO: failed to load case
+				throw new Exception($"Enable to load file with user preferences - {file}", ex);
 			}
 		}
 
@@ -115,13 +136,20 @@ internal sealed class FileBasedUserPreferenceRepository : IUserPreferenceReposit
 
 			while(_tasks.TryDequeue(out var task))
 			{
-				executeTask(task);
+				try
+				{
+					executeTask(task);
+				}
+				catch (Exception ex)
+				{
+					_logger.Log(LogLevel.Error, PreferencesSaveFailLOG, ex, "Enable to save preferences to file, destination: {DestinationFile}", task.DestinationFile);
+				}
 			}
 		}
 
 
 
-		void executeTask(ValueWriteTask task)
+		static void executeTask(ValueWriteTask task)
 		{
 			File.WriteAllText(task.DestinationFile, JsonConvert.SerializeObject(task.Value));
 		}
@@ -194,6 +222,7 @@ internal sealed class FileBasedUserPreferenceRepository : IUserPreferenceReposit
 					_cachedValues.Add(user.Id, modifiedValue);
 				}
 
+				_owner._logger.Log(LogLevel.Debug, PreferenceModifiedLOG, "Preference of type {ModelType} for {User} modified to {NewValue}", typeof(TPreferenceModel).FullName, user, modifiedValue);
 				_owner.DispatchModification(user, modifiedValue);
 			}
 			finally

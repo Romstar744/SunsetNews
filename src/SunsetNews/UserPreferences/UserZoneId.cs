@@ -11,4 +11,9 @@ internal record struct UserZoneId(long Id)
 	{
 		return id.Id;
 	}
+
+	public override string ToString()
+	{
+		return $"{{UserZone {Id}}}";
+	}
 }

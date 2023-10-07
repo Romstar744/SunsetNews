@@ -40,5 +40,10 @@ namespace SunsetNews.Telegram.Implementation
 		public override bool Equals(object? obj) => obj is UserChatProxy userChatProxy && userChatProxy.Id == Id;
 
 		public override int GetHashCode() => Id.GetHashCode();
+
+		public override string ToString()
+		{
+			return $"{{TelegramUser {Id}}}";
+		}
 	}
 }

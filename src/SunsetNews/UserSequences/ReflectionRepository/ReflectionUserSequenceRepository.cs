@@ -1,4 +1,5 @@
-﻿using SunsetNews.Telegram;
+﻿using Microsoft.Extensions.Logging;
+using SunsetNews.Telegram;
 using SunsetNews.UserSequences.UserWaitConditions;
 using System.Reflection;
 
@@ -9,17 +10,22 @@ internal sealed class ReflectionUserSequenceRepository : IUserSequenceRepository
 	private delegate IAsyncEnumerator<UserWaitCondition> SequenceSource(IMessage message);
 
 
+	public static readonly EventId SequenceLoadedLOG = new(11, "SequenceLoaded");
+	public static readonly EventId SequenceInitiatedLOG = new(12, "SequenceInitiated");
+
+
 	private readonly Dictionary<string, RepositoryItem> _items = new();
+	private readonly ILogger<ReflectionUserSequenceRepository> _logger;
 
 
-	public ReflectionUserSequenceRepository(IEnumerable<ISequenceModule> modules)
+	public ReflectionUserSequenceRepository(IEnumerable<ISequenceModule> modules, ILogger<ReflectionUserSequenceRepository> logger)
 	{
+		_logger = logger;
 		LoadSequences(modules);
 	}
 
 
-
-	public void LoadSequences(IEnumerable<ISequenceModule> modules)
+	private void LoadSequences(IEnumerable<ISequenceModule> modules)
 	{
 		foreach (var module in modules)
 		{
@@ -31,6 +37,7 @@ internal sealed class ReflectionUserSequenceRepository : IUserSequenceRepository
 					var awakeCommand = s.Attribute?.AwakeCommand!;
 					var method = s.Method;
 
+					_logger.Log(LogLevel.Debug, SequenceLoadedLOG, "User sequence loaded to repository from {Module}.{Method} with awake command /{Command}", method.DeclaringType!.FullName, method.Name, awakeCommand);
 					return new RepositoryItem(source, awakeCommand);
 
 
@@ -53,6 +60,8 @@ internal sealed class ReflectionUserSequenceRepository : IUserSequenceRepository
 		var item = _items[awakeCommand];
 
 		var sequence = item.Source.Invoke(message);
+
+		_logger.Log(LogLevel.Debug, SequenceInitiatedLOG, "Sequence initiated using /{AwakeCommand} command", awakeCommand);
 
 		return sequence;
 	}
