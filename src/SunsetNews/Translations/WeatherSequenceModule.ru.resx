@@ -201,6 +201,9 @@
   <data name="MoonPhase_WaxingGibbous" xml:space="preserve">
     <value>Прибывающая луна</value>
   </data>
+  <data name="NotificationTitle" xml:space="preserve">
+    <value>На текущий день</value>
+  </data>
   <data name="Precipitation" xml:space="preserve">
     <value>Осадки: {0} ({1}mm)</value>
   </data>

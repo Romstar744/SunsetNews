@@ -61,6 +61,9 @@ internal sealed class AccuWeatherDataSource : IWeatherDataSource
 					{
 						var searchResponse = JObject.Parse(await api.Locations.CitySearch(city));
 
+						if (searchResponse["StatusCode"].ToObject<HttpStatusCode>() != HttpStatusCode.OK)
+							throw new WebException($"Non OK status code from server while requesting locationKey, Server response: {searchResponse}");
+
 						var data = searchResponse["Data"].ToObject<string>();
 
 						locationKey = JArray.Parse(data)[0]["Key"].ToObject<int>();

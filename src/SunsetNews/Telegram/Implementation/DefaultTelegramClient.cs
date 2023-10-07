@@ -100,6 +100,11 @@ internal sealed class DefaultTelegramClient : ITelegramClient, IUpdateHandler
 		_processor = processor;
 	}
 
+	public async Task<IUserChat> GetUserChatAsync(long id)
+	{
+		return new UserChatProxy(_bot, await _bot.GetChatAsync(id));
+	}
+
 
 	public class Options
 	{

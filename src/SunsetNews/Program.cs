@@ -11,12 +11,13 @@ using SunsetNews.UserPreferences;
 using SunsetNews.UserPreferences.FileBased;
 using SunsetNews.UserSequences;
 using SunsetNews.UserSequences.ReflectionRepository;
+using SunsetNews.Utils.Logging;
 using SunsetNews.Weather;
 
 var config = new ConfigurationBuilder().AddJsonFile("config.json").Build();
 
 var services = new ServiceCollection()
-	.AddLogging(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Trace).AddFilter("Microsoft.Extensions.Localization.ResourceManagerStringLocalizer", LogLevel.None))
+	.AddLogging(builder => builder.AddFancyConsoleLogging(DateTime.Now).SetMinimumLevel(LogLevel.Trace).AddFilter("Microsoft.Extensions.Localization.ResourceManagerStringLocalizer", LogLevel.None))
 	.AddLocalization(options => options.ResourcesPath = "Translations")
 
 	.Configure<DefaultTelegramClient.Options>(config.GetSection("Telegram"))

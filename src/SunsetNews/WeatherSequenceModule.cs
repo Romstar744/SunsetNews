@@ -14,30 +14,40 @@ namespace SunsetNews;
 internal sealed class WeatherSequenceModule : ISequenceModule, ISchedulerModule
 {
 	private readonly IScheduler _scheduler;
+	private readonly ITelegramClient _bot;
 	private readonly IWeatherDataSource _source;
 	private readonly IStringLocalizer<WeatherSequenceModule> _localizer;
 	private readonly IUserPreferenceRepository _userPreferences;
 	private readonly IUserPreference<TimeZonePreferences> _timeZonePreferences;
+	private readonly IUserPreference<NotificationPreferences> _notificationPreferences;
 
 
-	public WeatherSequenceModule(IScheduler scheduler, IWeatherDataSource source, IStringLocalizer<WeatherSequenceModule> localizer, IUserPreferenceRepository userPreferences)
+	public WeatherSequenceModule(IScheduler scheduler,
+		ITelegramClient bot,
+		IWeatherDataSource source,
+		IStringLocalizer<WeatherSequenceModule> localizer,
+		IUserPreferenceRepository userPreferences)
 	{
 		_scheduler = scheduler;
+		_bot = bot;
 		_source = source;
 		_localizer = localizer;
 
 		_userPreferences = userPreferences;
 		_timeZonePreferences = userPreferences.LoadPreference<TimeZonePreferences>();
+		_notificationPreferences = userPreferences.LoadPreference<NotificationPreferences>();
 	}
 
 
 	public string ModuleId => nameof(WeatherSequenceModule);
 
 
-	[UserSequence("schedule")]
-	public async IAsyncEnumerator<UserWaitCondition> ScheduleTask(IMessage awakeMessage)
+	[UserSequence("notifications")]
+	public async IAsyncEnumerator<UserWaitCondition> SetupNotifications(IMessage awakeMessage)
 	{
-		_scheduler.Plan(awakeMessage.Chat.Id, new SchedulerTask(this, "demo", 55), new TimeOnly(19, 25, 30, 0, 0), SchedulerDayOfWeek.AllDays);
+		var taskId = _scheduler.Plan(awakeMessage.Chat.Id, new SchedulerTask(this, "printNotification", null), new TimeOnly(23, 06), SchedulerDayOfWeek.AllDays);
+		_notificationPreferences.Modify(awakeMessage.Chat.Id, _ => new NotificationPreferences(taskId, "Moscow"));
+		await awakeMessage.Chat.SendMessageAsync(new MessageSendModel("OK!"));
 		yield break;
 	}
 
@@ -138,16 +148,27 @@ internal sealed class WeatherSequenceModule : ISequenceModule, ISchedulerModule
 		await chat.SendMessageAsync(new MessageSendModel(content));
 	}
 
-	public void ExecuteFunction(string functionName, object? parameter)
+	public async Task ExecuteFunctionAsync(string functionName, object? parameter, UserZoneId user)
 	{
 		switch (functionName)
 		{
-			case "demo":
-				Console.WriteLine(JsonConvert.SerializeObject(parameter));
+			case "printNotification":
+				var tgUser = await _bot.GetUserChatAsync(user.Id);
+				await PrintNotificationAsync(tgUser);
 				break;
 
 			default:
 				throw new ArgumentException("No function with given name", nameof(functionName));
 		}
+	}
+
+	private async Task PrintNotificationAsync(IUserChat user)
+	{
+		var preference = _notificationPreferences.Get(user.Id);
+		if (preference.IsActive() == false)
+			return;
+
+		var forecast = await _source.FetchAsync(preference.TargetCity);
+		await PrintForecastAsync(user, forecast, _localizer["NotificationTitle"]);
 	}
 }

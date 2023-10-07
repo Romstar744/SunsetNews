@@ -201,6 +201,9 @@
   <data name="MoonPhase_WaxingGibbous" xml:space="preserve">
     <value>Waxing gibbous</value>
   </data>
+  <data name="NotificationTitle" xml:space="preserve">
+    <value>For this day</value>
+  </data>
   <data name="Precipitation" xml:space="preserve">
     <value>Precipitation: {0} ({1}mm)</value>
   </data>

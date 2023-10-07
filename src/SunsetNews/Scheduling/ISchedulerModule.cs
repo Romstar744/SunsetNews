@@ -1,9 +1,11 @@
-﻿namespace SunsetNews.Scheduling;
+﻿using SunsetNews.UserPreferences;
+
+namespace SunsetNews.Scheduling;
 
 internal interface ISchedulerModule
 {
 	public string ModuleId { get; }
 
 
-	public void ExecuteFunction(string functionName, object? parameter);
+	public Task ExecuteFunctionAsync(string functionName, object? parameter, UserZoneId user);
 }

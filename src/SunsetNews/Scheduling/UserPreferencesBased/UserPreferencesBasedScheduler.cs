@@ -92,8 +92,10 @@ internal sealed class UserPreferencesBasedScheduler : IScheduler, IDisposable
 					{
 						try
 						{
-							var parameter = JsonConvert.DeserializeObject(planItem.ParameterJson, Type.GetType(planItem.ParameterTypeAsmQName, throwOnError: true)!);
-							module.ExecuteFunction(planItem.FunctionName, parameter);
+							object? parameter = null;
+							if (planItem.ParameterTypeAsmQName != "#null")
+								parameter = JsonConvert.DeserializeObject(planItem.ParameterJson, Type.GetType(planItem.ParameterTypeAsmQName, throwOnError: true)!);
+							module.ExecuteFunctionAsync(planItem.FunctionName, parameter, userPlans.Key).Wait();
 						}
 						catch (Exception ex)
 						{

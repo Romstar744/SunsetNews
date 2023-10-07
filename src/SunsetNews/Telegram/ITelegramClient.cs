@@ -9,4 +9,6 @@ internal interface ITelegramClient
 	public Task ConnectAsync();
 
     public Task MainLoop();
+
+    public Task<IUserChat> GetUserChatAsync(long id);
 }
