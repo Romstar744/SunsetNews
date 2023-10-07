@@ -138,6 +138,39 @@
   <data name="Cloudiness_VariableCloudy" xml:space="preserve">
     <value>Variable cloudy</value>
   </data>
+  <data name="DayOfWeek" xml:space="preserve">
+    <value>Day of week</value>
+  </data>
+  <data name="DayOfWeek_Friday" xml:space="preserve">
+    <value>Friday</value>
+  </data>
+  <data name="DayOfWeek_Monday" xml:space="preserve">
+    <value>Monday</value>
+  </data>
+  <data name="DayOfWeek_Saturday" xml:space="preserve">
+    <value>Saturday</value>
+  </data>
+  <data name="DayOfWeek_Sunday" xml:space="preserve">
+    <value>Sunday</value>
+  </data>
+  <data name="DayOfWeek_Thursday" xml:space="preserve">
+    <value>Thursday</value>
+  </data>
+  <data name="DayOfWeek_Tuesday" xml:space="preserve">
+    <value>Tuesday</value>
+  </data>
+  <data name="DayOfWeek_Wednesday" xml:space="preserve">
+    <value>Wednesday</value>
+  </data>
+  <data name="DayPrompt" xml:space="preserve">
+    <value>For what period is the forecast?</value>
+  </data>
+  <data name="ErrorDuringProcess" xml:space="preserve">
+    <value>Failed to output the result</value>
+  </data>
+  <data name="FiveDays" xml:space="preserve">
+    <value>5 days</value>
+  </data>
   <data name="ForecastTitle" xml:space="preserve">
     <value>Weather forecast</value>
   </data>
@@ -210,13 +243,22 @@
   <data name="Thunderstorm_Probably" xml:space="preserve">
     <value>Probably</value>
   </data>
-  <data name="Today" xml:space="preserve">
+  <data name="Today+0" xml:space="preserve">
     <value>Today</value>
   </data>
-  <data name="Tomorrow" xml:space="preserve">
+  <data name="Today+1" xml:space="preserve">
     <value>Tomorrow</value>
   </data>
+  <data name="Today+2" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="Today+3" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="Today+4" xml:space="preserve">
+    <value>{0}</value>
+  </data>
   <data name="WindSpeed" xml:space="preserve">
-    <value>wind speed: {0}km/h</value>
+    <value>Wind speed: {0}km/h</value>
   </data>
 </root>

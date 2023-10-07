@@ -56,7 +56,7 @@ internal sealed class AccuWeatherDataSource : IWeatherDataSource
 #nullable disable
 				if (_cityCache.TryGetValue(city, out var locationKey) == false)
 				{
-					_logger.Log(LogLevel.Trace, CityCacheMissLOG, "No locationKey for {City} on date {ThatDay} ({Offset} days in future) in cache. Calling server API", city, thatDay, dayOffset);
+					_logger.Log(LogLevel.Trace, CityCacheMissLOG, "No locationKey for {City} in cache. Calling server API", city);
 					try
 					{
 						var searchResponse = JObject.Parse(await api.Locations.CitySearch(city));
@@ -69,7 +69,7 @@ internal sealed class AccuWeatherDataSource : IWeatherDataSource
 					}
 					catch (Exception ex)
 					{
-						_logger.Log(LogLevel.Error, CityLocalizationErrorLOG, ex, "Enable to get locationKey for {City} on date {ThatDay} ({Offset} days in future) in cache", city, thatDay, dayOffset);
+						_logger.Log(LogLevel.Error, CityLocalizationErrorLOG, ex, "Enable to get locationKey for {City}", city);
 						throw;
 					}
 				}
@@ -87,74 +87,101 @@ internal sealed class AccuWeatherDataSource : IWeatherDataSource
 					throw;
 				}
 
-				try
+				for (int i = 0; i < 5; i++)
 				{
-					var forecast = (JObject)JObject.Parse(forecastResponse["Data"].ToObject<string>())["DailyForecasts"][dayOffset];
+					if (i == dayOffset)
+						continue;
 
-
-					var temperatureJson = forecast["Temperature"];
-					var realFeelTemperatureJson = forecast["RealFeelTemperature"];
-
-					var windSpeed = forecast["Day"]["Wind"]["Speed"]["Value"].ToObject<float>();
-					var windDirection = forecast["Day"]["Wind"]["Direction"]["Degrees"].ToObject<float>() / 180f * MathF.PI;
-					var wind = new Vector2(windSpeed * MathF.Cos(windDirection), windSpeed * MathF.Sin(windDirection));
-
-					var cloudCover = forecast["Day"]["CloudCover"].ToObject<int>();
-					var cloudiness = cloudCover == 0 ? WeatherData.CloudinessType.Clear : (WeatherData.CloudinessType)Ceil(cloudCover, 25);
-
-
-					var rainProbability = forecast["Day"]["RainProbability"]?.ToObject<int?>() ?? 0;
-					var snowProbability = forecast["Day"]["SnowProbability"]?.ToObject<int?>() ?? 0;
-
-					var rainValue = forecast["Day"]["Rain"]["Value"]?.ToObject<int?>() ?? 0;
-					var snowValue = (forecast["Day"]["Snow"]["Value"]?.ToObject<int?>() ?? 0) * 10; //from cm to mm
-
-					WeatherData.PrecipitationType precipitationType;
-					int precipitationAmount;
-					if (rainProbability > 15 && snowProbability > 15)
-						(precipitationType, precipitationAmount) = (WeatherData.PrecipitationType.Mixed, rainValue + snowValue);
-					else if (rainProbability > 15)
-						(precipitationType, precipitationAmount) = (WeatherData.PrecipitationType.Rain, rainValue);
-					else if (snowProbability > 15)
-						(precipitationType, precipitationAmount) = (WeatherData.PrecipitationType.Snow, snowValue);
-					else
-						(precipitationType, precipitationAmount) = (WeatherData.PrecipitationType.None, 0);
-
-
-					var temperature = new FloatRange(temperatureJson["Minimum"]["Value"].ToObject<float>(), temperatureJson["Maximum"]["Value"].ToObject<float>());
-					var realFeelTemperature = new FloatRange(realFeelTemperatureJson["Minimum"]["Value"].ToObject<float>(), realFeelTemperatureJson["Maximum"]["Value"].ToObject<float>());
-					var moonPhase = Enum.Parse<WeatherData.MoonPhaseType>(forecast["Moon"]["Phase"].ToObject<string>());
-					var sunPeriod = new TimeRange(TimeOnly.FromDateTime(forecast["Sun"]["Rise"].ToObject<DateTime>()), TimeOnly.FromDateTime(forecast["Sun"]["Set"].ToObject<DateTime>()));
-					var thunderstorm = (WeatherData.ThunderstormStatus)((forecast["Day"]["ThunderstormProbability"]?.ToObject<int?>() ?? 0) / 26);
-
-					var weatherData = new WeatherData(city, thatDay)
+					try
 					{
-						Temperature = temperature,
-						RealFeelTemperature = realFeelTemperature,
-						MoonPhase = moonPhase,
-						SunPeriod = sunPeriod,
-						Wind = wind,
-						Cloudiness = cloudiness,
-						Thunderstorm = thunderstorm,
-						Precipitation = precipitationType,
-						PrecipitationAmount = precipitationAmount
-					};
-
-					_forecastCache.TryAdd(cacheKey, weatherData);
-
-					return weatherData;
+						ParseForecast(city, i, today, forecastResponse);
+					}
+					catch (Exception)
+					{
+						//Ignore exception
+					}
 				}
-				catch (Exception ex)
-				{
-					_logger.Log(LogLevel.Error, ForecastParseErrorLOG, ex, "Enable to parse forecast for {City} on date {ThatDay} ({Offset} days in future) in cache", city, thatDay, dayOffset);
-					throw;
-				}
+
+
+				return ParseForecast(city, dayOffset, today, forecastResponse);
 			}
 #nullable restore
 		}
 		catch (Exception ex)
 		{
 			_logger.Log(LogLevel.Error, UnspecifiedErrorLOG, ex, "City: {City}, RequestedDay: {RequestedDay}, Offset: {Offset}", city, thatDay, dayOffset);
+			throw;
+		}
+	}
+
+
+	private WeatherData ParseForecast(string city, int dayOffset, DateOnly today, JObject forecastResponse)
+	{
+		var thatDay = today.AddDays(dayOffset);
+		var cacheKey = new CacheKey(thatDay, city);
+
+		try
+		{
+#nullable disable
+			var forecast = (JObject)JObject.Parse(forecastResponse["Data"].ToObject<string>())["DailyForecasts"][dayOffset];
+
+
+			var temperatureJson = forecast["Temperature"];
+			var realFeelTemperatureJson = forecast["RealFeelTemperature"];
+
+			var windSpeed = forecast["Day"]["Wind"]["Speed"]["Value"].ToObject<float>();
+			var windDirection = forecast["Day"]["Wind"]["Direction"]["Degrees"].ToObject<float>() / 180f * MathF.PI;
+			var wind = new Vector2(windSpeed * MathF.Cos(windDirection), windSpeed * MathF.Sin(windDirection));
+
+			var cloudCover = forecast["Day"]["CloudCover"].ToObject<int>();
+			var cloudiness = cloudCover == 0 ? WeatherData.CloudinessType.Clear : (WeatherData.CloudinessType)Ceil(cloudCover, 25);
+
+
+			var rainProbability = forecast["Day"]["RainProbability"]?.ToObject<int?>() ?? 0;
+			var snowProbability = forecast["Day"]["SnowProbability"]?.ToObject<int?>() ?? 0;
+
+			var rainValue = forecast["Day"]["Rain"]["Value"]?.ToObject<int?>() ?? 0;
+			var snowValue = (forecast["Day"]["Snow"]["Value"]?.ToObject<int?>() ?? 0) * 10; //from cm to mm
+
+			WeatherData.PrecipitationType precipitationType;
+			int precipitationAmount;
+			if (rainProbability > 15 && snowProbability > 15)
+				(precipitationType, precipitationAmount) = (WeatherData.PrecipitationType.Mixed, rainValue + snowValue);
+			else if (rainProbability > 15)
+				(precipitationType, precipitationAmount) = (WeatherData.PrecipitationType.Rain, rainValue);
+			else if (snowProbability > 15)
+				(precipitationType, precipitationAmount) = (WeatherData.PrecipitationType.Snow, snowValue);
+			else
+				(precipitationType, precipitationAmount) = (WeatherData.PrecipitationType.None, 0);
+
+
+			var temperature = new FloatRange(temperatureJson["Minimum"]["Value"].ToObject<float>(), temperatureJson["Maximum"]["Value"].ToObject<float>());
+			var realFeelTemperature = new FloatRange(realFeelTemperatureJson["Minimum"]["Value"].ToObject<float>(), realFeelTemperatureJson["Maximum"]["Value"].ToObject<float>());
+			var moonPhase = Enum.Parse<WeatherData.MoonPhaseType>(forecast["Moon"]["Phase"].ToObject<string>());
+			var sunPeriod = new TimeRange(TimeOnly.FromDateTime(forecast["Sun"]["Rise"].ToObject<DateTime>()), TimeOnly.FromDateTime(forecast["Sun"]["Set"].ToObject<DateTime>()));
+			var thunderstorm = (WeatherData.ThunderstormStatus)((forecast["Day"]["ThunderstormProbability"]?.ToObject<int?>() ?? 0) / 26);
+
+			var weatherData = new WeatherData(city, thatDay)
+			{
+				Temperature = temperature,
+				RealFeelTemperature = realFeelTemperature,
+				MoonPhase = moonPhase,
+				SunPeriod = sunPeriod,
+				Wind = wind,
+				Cloudiness = cloudiness,
+				Thunderstorm = thunderstorm,
+				Precipitation = precipitationType,
+				PrecipitationAmount = precipitationAmount
+			};
+
+			_forecastCache.TryAdd(cacheKey, weatherData);
+
+			return weatherData;
+#nullable restore
+		}
+		catch (Exception ex)
+		{
+			_logger.Log(LogLevel.Error, ForecastParseErrorLOG, ex, "Enable to parse forecast for {City} on date {ThatDay} ({Offset} days in future) in cache", city, thatDay, dayOffset);
 			throw;
 		}
 	}

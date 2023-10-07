@@ -17,6 +17,7 @@ internal sealed class WeatherSequenceModule : ISequenceModule, ISchedulerModule
 	private readonly IWeatherDataSource _source;
 	private readonly IStringLocalizer<WeatherSequenceModule> _localizer;
 	private readonly IUserPreferenceRepository _userPreferences;
+	private readonly IUserPreference<TimeZonePreferences> _timeZonePreferences;
 
 
 	public WeatherSequenceModule(IScheduler scheduler, IWeatherDataSource source, IStringLocalizer<WeatherSequenceModule> localizer, IUserPreferenceRepository userPreferences)
@@ -24,7 +25,9 @@ internal sealed class WeatherSequenceModule : ISequenceModule, ISchedulerModule
 		_scheduler = scheduler;
 		_source = source;
 		_localizer = localizer;
+
 		_userPreferences = userPreferences;
+		_timeZonePreferences = userPreferences.LoadPreference<TimeZonePreferences>();
 	}
 
 
@@ -41,6 +44,9 @@ internal sealed class WeatherSequenceModule : ISequenceModule, ISchedulerModule
 	[UserSequence("weather")]
 	public async IAsyncEnumerator<UserWaitCondition> RequestWeather(IMessage awakeMessage)
 	{
+		var timeZone = _timeZonePreferences.Get(awakeMessage.Chat.Id);
+		var utcNow = DateTime.UtcNow;
+
 		await awakeMessage.Chat.SendMessageAsync(new MessageSendModel(_localizer["CityPrompt"]));
 
 		var cityMessage = new TextMessageWaitCondition();
@@ -48,11 +54,58 @@ internal sealed class WeatherSequenceModule : ISequenceModule, ISchedulerModule
 
 		var city = cityMessage.CapturedMessage.Content;
 
-		var todayForecast = await _source.FetchAsync(city, dayOffset: 0);
-		var tomorrowForecast = await _source.FetchAsync(city, dayOffset: 1);
+		var dayPrompt = await awakeMessage.Chat.SendMessageAsync(new MessageSendModel(_localizer["DayPrompt"], new(
+			new MessageButton("today", _localizer["Today+0", getDay(0)]),
+			new MessageButton("yesterday", _localizer["Today+1", getDay(1)]),
+			new MessageButton("5days", _localizer["FiveDays"])
+		
+		)));
 
-		await PrintForecast(awakeMessage.Chat, todayForecast, _localizer["Today"]);
-		await PrintForecast(awakeMessage.Chat, tomorrowForecast, _localizer["Tomorrow"]);
+		var dayPromptResponse = new ButtonWaitCondition(dayPrompt);
+		yield return dayPromptResponse;
+
+		try
+		{
+			switch (dayPromptResponse.CapturedButtonId)
+			{
+				case "today":
+					var todayForecast = await _source.FetchAsync(city, 0);
+					await PrintForecastAsync(awakeMessage.Chat, todayForecast, _localizer["Today+0", getDay(0)]);
+					break;
+
+				case "yesterday":
+					var yesterdayForecast = await _source.FetchAsync(city, 1);
+					await PrintForecastAsync(awakeMessage.Chat, yesterdayForecast, _localizer["Today+1", getDay(1)]);
+					break;
+
+				case "5days":
+					var forecasts = await Task.WhenAll(Enumerable.Range(0, 5).Select(offset => _source.FetchAsync(city, offset)));
+					var offset = 0;
+					foreach (var forecast in forecasts)
+					{
+						await PrintForecastAsync(awakeMessage.Chat, forecast, _localizer["Today+" + offset, getDay(offset)]);
+						offset++;
+					}
+					break;
+			}
+		}
+		catch (Exception)
+		{
+			await awakeMessage.Chat.SendMessageAsync(new MessageSendModel(_localizer["ErrorDuringProcess"]));
+			throw;
+		}
+
+
+
+		string getDay(int offset)
+		{
+			var thatDay = utcNow.AddDays(offset);
+			var transformedThatDay = thatDay + timeZone.GetTimeZone().GetUtcOffset(thatDay);
+			var dayOfWeek = transformedThatDay.DayOfWeek;
+			var dayOfWeekString = _localizer["DayOfWeek_" + dayOfWeek];
+
+			return $"{dayOfWeekString} {transformedThatDay.ToShortDateString()}";
+		}
 	}
 
 	[UserSequence("lang")]
@@ -69,7 +122,7 @@ internal sealed class WeatherSequenceModule : ISequenceModule, ISchedulerModule
 		preference.Modify(awakeMessage.Chat.Id, value => value with { Culture = new(code) });
 	}
 
-	private async Task PrintForecast(IUserChat chat, WeatherData forecast, string title)
+	private async Task PrintForecastAsync(IUserChat chat, WeatherData forecast, string title)
 	{
 		var content = $"""
 		{_localizer["ForecastTitle"]} ({title})

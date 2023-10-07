@@ -138,6 +138,39 @@
   <data name="Cloudiness_VariableCloudy" xml:space="preserve">
     <value>Переменная облачность</value>
   </data>
+  <data name="DayOfWeek" xml:space="preserve">
+    <value>День недели</value>
+  </data>
+  <data name="DayOfWeek_Friday" xml:space="preserve">
+    <value>Пятница</value>
+  </data>
+  <data name="DayOfWeek_Monday" xml:space="preserve">
+    <value>Понедельник</value>
+  </data>
+  <data name="DayOfWeek_Saturday" xml:space="preserve">
+    <value>Суббота</value>
+  </data>
+  <data name="DayOfWeek_Sunday" xml:space="preserve">
+    <value>Воскресенье</value>
+  </data>
+  <data name="DayOfWeek_Thursday" xml:space="preserve">
+    <value>Четверг</value>
+  </data>
+  <data name="DayOfWeek_Tuesday" xml:space="preserve">
+    <value>Вторник</value>
+  </data>
+  <data name="DayOfWeek_Wednesday" xml:space="preserve">
+    <value>Среда</value>
+  </data>
+  <data name="DayPrompt" xml:space="preserve">
+    <value>На какой период прогноз?</value>
+  </data>
+  <data name="ErrorDuringProcess" xml:space="preserve">
+    <value>Не удалось вывести результат</value>
+  </data>
+  <data name="FiveDays" xml:space="preserve">
+    <value>5 дней</value>
+  </data>
   <data name="ForecastTitle" xml:space="preserve">
     <value>Прогноз погоды</value>
   </data>
@@ -210,11 +243,20 @@
   <data name="Thunderstorm_Probably" xml:space="preserve">
     <value>Вероятно</value>
   </data>
-  <data name="Today" xml:space="preserve">
+  <data name="Today+0" xml:space="preserve">
     <value>Сегодня</value>
   </data>
-  <data name="Tomorrow" xml:space="preserve">
+  <data name="Today+1" xml:space="preserve">
     <value>Завтра</value>
+  </data>
+  <data name="Today+2" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="Today+3" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="Today+4" xml:space="preserve">
+    <value>{0}</value>
   </data>
   <data name="WindSpeed" xml:space="preserve">
     <value>Скорость ветра: {0}km/h</value>
