@@ -48,13 +48,13 @@ internal sealed class UserPreferencesBasedScheduler : IScheduler, IDisposable
 		_logger.Log(LogLevel.Debug, TaskCanceledLOG, "Task {Task} has been canceled", id);
 	}
 
-	public SchedulerTaskId Plan(UserZoneId user, SchedulerTask task, TimeOnly utcTime, SchedulerDayOfWeek days)
+	public SchedulerTaskId Plan(UserZoneId user, SchedulerTask task, TimeOnly localTime, SchedulerDayOfWeek days, TimeZoneInfo timeZone)
 	{
 		var id = new SchedulerTaskId(Guid.NewGuid());
 
 		var newItem = new SchedulerPlanItem(task.ModuleId, task.FunctionName,
 			JsonConvert.SerializeObject(task.Parameter), task.Parameter?.GetType()?.AssemblyQualifiedName ?? "#null",
-			(int)days, utcTime, DateTimeOffset.UtcNow);
+			(int)days, localTime, timeZone.ToSerializedString(), DateTimeOffset.UtcNow);
 
 		_userPreference.Modify(user, store => store.Add(id, newItem));
 
@@ -121,15 +121,18 @@ internal sealed class UserPreferencesBasedScheduler : IScheduler, IDisposable
 		static bool needExecuteNow(KeyValuePair<Guid, SchedulerPlanItem> planItemPair)
 		{
 			var planItem = planItemPair.Value;
-			var today = DateTimeOffset.UtcNow;
+			var timeZone = TimeZoneInfo.FromSerializedString(planItem.TimeZoneSerializedForm);
+			var today = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, timeZone);
 
-			if (DateOnly.FromDateTime(today.DateTime) == DateOnly.FromDateTime(planItem.LastExecution.DateTime))
+			var lastExecution = TimeZoneInfo.ConvertTime(planItem.LastExecution, timeZone);
+
+			if (DateOnly.FromDateTime(today.DateTime) == DateOnly.FromDateTime(lastExecution.DateTime))
 				return false;
 
 			var todayWeekDay = today.DayOfWeek.ToSchedulerDayOfWeek();
 			var todayTime = TimeOnly.FromDateTime(today.DateTime);
 
-			return ((SchedulerDayOfWeek)planItem.Days).HasFlag(todayWeekDay) && todayTime >= planItem.UtcTime;
+			return ((SchedulerDayOfWeek)planItem.Days).HasFlag(todayWeekDay) && todayTime >= planItem.LocalTime;
 		}
 	}
 }

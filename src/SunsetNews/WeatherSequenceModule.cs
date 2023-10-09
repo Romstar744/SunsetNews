@@ -8,6 +8,7 @@ using SunsetNews.UserSequences.ReflectionRepository;
 using SunsetNews.UserSequences.UserWaitConditions;
 using SunsetNews.Weather;
 using System.Globalization;
+using Telegram.Bot.Types;
 
 namespace SunsetNews;
 
@@ -20,6 +21,7 @@ internal sealed class WeatherSequenceModule : ISequenceModule, ISchedulerModule
 	private readonly IUserPreferenceRepository _userPreferences;
 	private readonly IUserPreference<TimeZonePreferences> _timeZonePreferences;
 	private readonly IUserPreference<NotificationPreferences> _notificationPreferences;
+	private readonly IUserPreference<CulturePreferences> _culturePreferences;
 
 
 	public WeatherSequenceModule(IScheduler scheduler,
@@ -36,19 +38,157 @@ internal sealed class WeatherSequenceModule : ISequenceModule, ISchedulerModule
 		_userPreferences = userPreferences;
 		_timeZonePreferences = userPreferences.LoadPreference<TimeZonePreferences>();
 		_notificationPreferences = userPreferences.LoadPreference<NotificationPreferences>();
+		_culturePreferences = userPreferences.LoadPreference<CulturePreferences>();
 	}
 
 
 	public string ModuleId => nameof(WeatherSequenceModule);
 
 
+	[UserSequence("settings")]
+	public async IAsyncEnumerator<UserWaitCondition> SettingBot(IMessage awakeMessage)
+	{
+	loop:
+		var menuMessage = await awakeMessage.Chat.SendMessageAsync(new MessageSendModel(_localizer["SettingsMenuContent"], new(
+			new MessageButton("lang", _localizer["LanguageSettingsButton"]),
+			new MessageButton("time", _localizer["TimeZoneSettingsButton"]),
+			new MessageButton("exit", _localizer["ExitSettingsButton"])
+		)));
+
+		var clickedButton = new ButtonWaitCondition(menuMessage);
+		yield return clickedButton;
+
+		await menuMessage.DeleteAsync();
+
+		switch (clickedButton.CapturedButtonId)
+		{
+			case "lang":
+				await awakeMessage.Chat.SendMessageAsync(new MessageSendModel(_localizer["LangAskSettingsMessage"]));
+				var langAnswer = new TextMessageWaitCondition();
+				yield return langAnswer;
+
+				try
+				{
+					var cultureInfo = CultureInfo.GetCultureInfo(langAnswer.CapturedMessage.Content);
+					_culturePreferences.Modify(awakeMessage.Chat.Id, value => value with { Culture = cultureInfo });
+
+				}
+				catch (CultureNotFoundException)
+				{
+					await awakeMessage.Chat.SendMessageAsync(new MessageSendModel(_localizer["InvalidCultureCodeMessage"]));
+				}
+
+				goto loop;
+
+			case "time":
+				var availableTimeZones = TimeZoneInfo.GetSystemTimeZones();
+
+				await awakeMessage.Chat.SendMessageAsync(new MessageSendModel(_localizer["TimeZoneAskSettingsMessage"]));
+				var contentStrings = availableTimeZones.Select((timeZone, i) => $"[{i + 1}]: (UTC{(timeZone.BaseUtcOffset.Ticks < 0 ? "-" : "+")}{timeZone.BaseUtcOffset:hh\\:ss}) {timeZone.Id}");
+				while (contentStrings.Any())
+				{
+					var toPrint = contentStrings.Take(50);
+					await awakeMessage.Chat.SendMessageAsync(new MessageSendModel(string.Join("\n", toPrint)));
+					contentStrings = contentStrings.Skip(50);
+				}
+
+				var timeZoneAnswer = new TextMessageWaitCondition(s => int.TryParse(s.Content, out var number) && number > 0 && number <= availableTimeZones.Count);
+				yield return timeZoneAnswer;
+
+				var selectedTimeZone = availableTimeZones[int.Parse(timeZoneAnswer.CapturedMessage.Content) - 1];
+
+				_timeZonePreferences.Modify(awakeMessage.Chat.Id, value => TimeZonePreferences.FromTimeZone(selectedTimeZone));
+
+				goto loop;
+
+			default:
+				break;
+		}
+	}
+
 	[UserSequence("notifications")]
 	public async IAsyncEnumerator<UserWaitCondition> SetupNotifications(IMessage awakeMessage)
 	{
-		var taskId = _scheduler.Plan(awakeMessage.Chat.Id, new SchedulerTask(this, "printNotification", null), new TimeOnly(23, 06), SchedulerDayOfWeek.AllDays);
-		_notificationPreferences.Modify(awakeMessage.Chat.Id, _ => new NotificationPreferences(taskId, "Moscow"));
-		await awakeMessage.Chat.SendMessageAsync(new MessageSendModel("OK!"));
-		yield break;
+	loop:
+		var currentConfig = _notificationPreferences.Get(awakeMessage.Chat.Id);
+
+		var menuMessage = await awakeMessage.Chat.SendMessageAsync(new MessageSendModel(_localizer["NotificationsMenuContent"], new(
+			new MessageButton("toggle", currentConfig.IsActive() ? _localizer["DisableNotificationsButton"] : _localizer["EnableNotificationsButton"]),
+			new MessageButton("city", _localizer["CityNotificationsButton"]),
+			new MessageButton("day", _localizer["DaysOfWeekNotificationsButton"]),
+			new MessageButton("time", _localizer["TimeNotificationsButton"]),
+			new MessageButton("exit", _localizer["ExitNotificationsButton"])
+		)));
+
+		var clickedButton = new ButtonWaitCondition(menuMessage);
+		yield return clickedButton;
+
+		await menuMessage.DeleteAsync();
+
+		switch (clickedButton.CapturedButtonId)
+		{
+			case "toggle":
+				if (currentConfig.IsActive())
+				{
+					_scheduler.Cancel(awakeMessage.Chat.Id, currentConfig.SchedulerTaskId);
+					_notificationPreferences.Modify(awakeMessage.Chat.Id, s => s with { SchedulerTaskId = Guid.Empty });
+				}
+				else
+				{
+					var timeZone = _timeZonePreferences.Get(awakeMessage.Chat.Id).GetTimeZone();
+					var taskId = _scheduler.Plan(awakeMessage.Chat.Id, new SchedulerTask(this, "printNotification", null), currentConfig.LocalTime, currentConfig.WeekOfDays, timeZone);
+					_notificationPreferences.Modify(awakeMessage.Chat.Id, s => s with { SchedulerTaskId = taskId, TimeZoneSerializedForm = timeZone.ToSerializedString() });
+				}
+
+				goto loop;
+
+			case "city":
+				await awakeMessage.Chat.SendMessageAsync(new MessageSendModel(_localizer["CityAskNotificationsMessage"]));
+				var cityAnswer = new TextMessageWaitCondition();
+				yield return cityAnswer;
+
+				_notificationPreferences.Modify(awakeMessage.Chat.Id, s => s with { TargetCity = cityAnswer.CapturedMessage.Content });
+
+				recreateTask();
+				goto loop;
+
+			case "time":
+				await awakeMessage.Chat.SendMessageAsync(new MessageSendModel(_localizer["TimeAskNotificationsMessage"]));
+				var timeAnswer = new TextMessageWaitCondition(s => TimeOnly.TryParse(s.Content, out _));
+				yield return timeAnswer;
+
+				_notificationPreferences.Modify(awakeMessage.Chat.Id, s => s with { LocalTime = TimeOnly.Parse(timeAnswer.CapturedMessage.Content) });
+
+				recreateTask();
+				goto loop;
+
+			case "day":
+				await awakeMessage.Chat.SendMessageAsync(new MessageSendModel(_localizer["DaysOfWeekAskNotificationsMessage"]));
+				var daysAnswer = new TextMessageWaitCondition(s => s.Content.Length == 7);
+				yield return daysAnswer;
+
+				SchedulerDayOfWeek result = 0;
+				for (int dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++)
+					if (daysAnswer.CapturedMessage.Content[dayOfWeek] == '+')
+						result |= (SchedulerDayOfWeek)(1 << dayOfWeek);
+
+				_notificationPreferences.Modify(awakeMessage.Chat.Id, s => s with { WeekOfDays = result });
+
+				recreateTask();
+				goto loop;
+
+			default:
+				break;
+		}
+
+
+		void recreateTask()
+		{
+			_scheduler.Cancel(awakeMessage.Chat.Id, currentConfig.SchedulerTaskId);
+			var timeZone = _timeZonePreferences.Get(awakeMessage.Chat.Id).GetTimeZone();
+			var taskId = _scheduler.Plan(awakeMessage.Chat.Id, new SchedulerTask(this, "printNotification", null), currentConfig.LocalTime, currentConfig.WeekOfDays, timeZone);
+			_notificationPreferences.Modify(awakeMessage.Chat.Id, s => s with { SchedulerTaskId = taskId, TimeZoneSerializedForm = timeZone.ToSerializedString() });
+		}
 	}
 
 	[UserSequence("weather")]

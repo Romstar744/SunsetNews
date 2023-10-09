@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CityAskNotificationsMessage" xml:space="preserve">
+    <value>City ask</value>
+  </data>
+  <data name="CityNotificationsButton" xml:space="preserve">
+    <value>City</value>
+  </data>
   <data name="CityPrompt" xml:space="preserve">
     <value>Enter your city</value>
   </data>
@@ -124,21 +130,24 @@
     <value>Cloudiness: {0}</value>
   </data>
   <data name="Cloudiness_Clear" xml:space="preserve">
-    <value>Clear</value>
+    <value>☀️Clear</value>
   </data>
   <data name="Cloudiness_MainlyCloudy" xml:space="preserve">
-    <value>Mainly cloudy</value>
+    <value>☁️Mainly cloudy</value>
   </data>
   <data name="Cloudiness_ModerateCloudy" xml:space="preserve">
-    <value>Moderate cloudy</value>
+    <value>🌥️Moderate cloudy</value>
   </data>
   <data name="Cloudiness_PartlyCloudy" xml:space="preserve">
-    <value>Partly cloudy</value>
+    <value>🌤️Partly cloudy</value>
   </data>
   <data name="Cloudiness_VariableCloudy" xml:space="preserve">
-    <value>Variable cloudy</value>
+    <value>⛅Variable cloudy</value>
   </data>
   <data name="DayOfWeek" xml:space="preserve">
+    <value>Day of week</value>
+  </data>
+  <data name="DayOfWeekNotificationsButton" xml:space="preserve">
     <value>Day of week</value>
   </data>
   <data name="DayOfWeek_Friday" xml:space="preserve">
@@ -165,8 +174,20 @@
   <data name="DayPrompt" xml:space="preserve">
     <value>For what period is the forecast?</value>
   </data>
+  <data name="DisableNotificationsButton" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="EnableNotificationsButton" xml:space="preserve">
+    <value>Enable</value>
+  </data>
   <data name="ErrorDuringProcess" xml:space="preserve">
-    <value>Failed to output the result</value>
+    <value>❌Failed to output the result</value>
+  </data>
+  <data name="ExitNotificationsButton" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="ExitSettingsButton" xml:space="preserve">
+    <value>Exit</value>
   </data>
   <data name="FiveDays" xml:space="preserve">
     <value>5 days</value>
@@ -174,32 +195,44 @@
   <data name="ForecastTitle" xml:space="preserve">
     <value>Weather forecast</value>
   </data>
+  <data name="InvalidCultureCodeMessage" xml:space="preserve">
+    <value>Invalid culture code</value>
+  </data>
+  <data name="LangAskSettingsMessage" xml:space="preserve">
+    <value>Lang ask settings</value>
+  </data>
+  <data name="LanguageSettingsButton" xml:space="preserve">
+    <value>Language</value>
+  </data>
   <data name="MoonPhase" xml:space="preserve">
     <value>Moon phase: {0}</value>
   </data>
   <data name="MoonPhase_FirstQuarter" xml:space="preserve">
-    <value>First quarter</value>
+    <value>🌓First quarter</value>
   </data>
   <data name="MoonPhase_Full" xml:space="preserve">
-    <value>Full</value>
+    <value>🌕Full</value>
   </data>
   <data name="MoonPhase_LastQuarter" xml:space="preserve">
-    <value>Last quarter</value>
+    <value>🌗Last quarter</value>
   </data>
   <data name="MoonPhase_New" xml:space="preserve">
-    <value>New</value>
+    <value>🌑New</value>
   </data>
   <data name="MoonPhase_WaningCrescent" xml:space="preserve">
-    <value>Waning crescent</value>
+    <value>🌘Waning crescent</value>
   </data>
   <data name="MoonPhase_WaningGibbous" xml:space="preserve">
-    <value>Waning gibbous</value>
+    <value>🌖Waning gibbous</value>
   </data>
   <data name="MoonPhase_WaxingCrescent" xml:space="preserve">
-    <value>Waxing crescent</value>
+    <value>🌒Waxing crescent</value>
   </data>
   <data name="MoonPhase_WaxingGibbous" xml:space="preserve">
-    <value>Waxing gibbous</value>
+    <value>🌔Waxing gibbous</value>
+  </data>
+  <data name="NotificationsMenuContent" xml:space="preserve">
+    <value>Notifications menu </value>
   </data>
   <data name="NotificationTitle" xml:space="preserve">
     <value>For this day</value>
@@ -208,22 +241,25 @@
     <value>Precipitation: {0} ({1}mm)</value>
   </data>
   <data name="Precipitation_Mixed" xml:space="preserve">
-    <value>Mixed</value>
+    <value>☁️Mixed</value>
   </data>
   <data name="Precipitation_None" xml:space="preserve">
-    <value>None</value>
+    <value>🌄None</value>
   </data>
   <data name="Precipitation_Other" xml:space="preserve">
-    <value>Other</value>
+    <value>☁️Other</value>
   </data>
   <data name="Precipitation_Rain" xml:space="preserve">
-    <value>Rain</value>
+    <value>🌧️Rain</value>
   </data>
   <data name="Precipitation_Snow" xml:space="preserve">
-    <value>Snow</value>
+    <value>🌨️Snow</value>
   </data>
   <data name="RealFeelTemperature" xml:space="preserve">
     <value>real feel {0}℃</value>
+  </data>
+  <data name="SettingsMenuContent" xml:space="preserve">
+    <value>Settings menu</value>
   </data>
   <data name="SunPeriod" xml:space="preserve">
     <value>Sun Period: {0}</value>
@@ -235,16 +271,28 @@
     <value>Thunderstorm: {0}</value>
   </data>
   <data name="Thunderstorm_Guaranteed" xml:space="preserve">
-    <value>Guaranteed</value>
+    <value>🌩️Guaranteed</value>
   </data>
   <data name="Thunderstorm_Maybe" xml:space="preserve">
-    <value>Maybe</value>
+    <value>🌩️Maybe</value>
   </data>
   <data name="Thunderstorm_None" xml:space="preserve">
-    <value>None</value>
+    <value>🌄None</value>
   </data>
   <data name="Thunderstorm_Probably" xml:space="preserve">
-    <value>Probably</value>
+    <value>🌩️Probably</value>
+  </data>
+  <data name="TimeAskNotificationsMessage" xml:space="preserve">
+    <value>Time ask</value>
+  </data>
+  <data name="TimeNotificationsButton" xml:space="preserve">
+    <value>Time</value>
+  </data>
+  <data name="TimeZoneAskSettingsMessage" xml:space="preserve">
+    <value>Time zone ask settings</value>
+  </data>
+  <data name="TimeZoneSettingsButton" xml:space="preserve">
+    <value>Time zone</value>
   </data>
   <data name="Today+0" xml:space="preserve">
     <value>Today</value>
