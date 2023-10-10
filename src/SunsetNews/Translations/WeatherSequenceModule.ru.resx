@@ -1,0 +1,321 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CityAskNotificationsMessage" xml:space="preserve">
+    <value>Задать город</value>
+  </data>
+  <data name="CityNotificationsButton" xml:space="preserve">
+    <value>Город</value>
+  </data>
+  <data name="CityPrompt" xml:space="preserve">
+    <value>Введите город</value>
+  </data>
+  <data name="Cloudiness" xml:space="preserve">
+    <value>Облачность: {0}</value>
+  </data>
+  <data name="Cloudiness_Clear" xml:space="preserve">
+    <value>☀️Ясно</value>
+  </data>
+  <data name="Cloudiness_MainlyCloudy" xml:space="preserve">
+    <value>☁️В основном облачно</value>
+  </data>
+  <data name="Cloudiness_ModerateCloudy" xml:space="preserve">
+    <value>🌥️Умеренная облачность</value>
+  </data>
+  <data name="Cloudiness_PartlyCloudy" xml:space="preserve">
+    <value>🌤️Частичная облачность</value>
+  </data>
+  <data name="Cloudiness_VariableCloudy" xml:space="preserve">
+    <value>⛅Переменная облачность</value>
+  </data>
+  <data name="DayOfWeek" xml:space="preserve">
+    <value>День недели</value>
+  </data>
+  <data name="DayOfWeek_Friday" xml:space="preserve">
+    <value>Пятница</value>
+  </data>
+  <data name="DayOfWeek_Monday" xml:space="preserve">
+    <value>Понедельник</value>
+  </data>
+  <data name="DayOfWeek_Saturday" xml:space="preserve">
+    <value>Суббота</value>
+  </data>
+  <data name="DayOfWeek_Sunday" xml:space="preserve">
+    <value>Воскресенье</value>
+  </data>
+  <data name="DayOfWeek_Thursday" xml:space="preserve">
+    <value>Четверг</value>
+  </data>
+  <data name="DayOfWeek_Tuesday" xml:space="preserve">
+    <value>Вторник</value>
+  </data>
+  <data name="DayOfWeek_Wednesday" xml:space="preserve">
+    <value>Среда</value>
+  </data>
+  <data name="DayPrompt" xml:space="preserve">
+    <value>На какой период прогноз?</value>
+  </data>
+  <data name="DaysOfWeekAskNotificationsMessage" xml:space="preserve">
+    <value>Введите дни, когда будут приходить уведомления в формате:
+Пример: +--+-+- 
+"+" - выбрано, "-" - не выбрано
+ </value>
+  </data>
+  <data name="DaysOfWeekNotificationsButton" xml:space="preserve">
+    <value>День недели</value>
+  </data>
+  <data name="DisableNotificationsButton" xml:space="preserve">
+    <value>Выключить</value>
+  </data>
+  <data name="EnableNotificationsButton" xml:space="preserve">
+    <value>Включить</value>
+  </data>
+  <data name="ErrorDuringProcess" xml:space="preserve">
+    <value>Не удалось вывести результат</value>
+  </data>
+  <data name="ExitNotificationsButton" xml:space="preserve">
+    <value>Выход</value>
+  </data>
+  <data name="ExitSettingsButton" xml:space="preserve">
+    <value>Выход из настроек</value>
+  </data>
+  <data name="FiveDays" xml:space="preserve">
+    <value>5 дней</value>
+  </data>
+  <data name="ForecastTitle" xml:space="preserve">
+    <value>Прогноз погоды</value>
+  </data>
+  <data name="InvalidCultureCodeMessage" xml:space="preserve">
+    <value>Неверный региональный код</value>
+  </data>
+  <data name="LangAskSettingsMessage" xml:space="preserve">
+    <value>Введите региональный код</value>
+  </data>
+  <data name="LanguageSettingsButton" xml:space="preserve">
+    <value>Настройки языка</value>
+  </data>
+  <data name="MoonPhase" xml:space="preserve">
+    <value>Фаза луны: {0}</value>
+  </data>
+  <data name="MoonPhase_FirstQuarter" xml:space="preserve">
+    <value>🌓Первая четверть</value>
+  </data>
+  <data name="MoonPhase_Full" xml:space="preserve">
+    <value>🌕Полнолуние</value>
+  </data>
+  <data name="MoonPhase_LastQuarter" xml:space="preserve">
+    <value>🌗Последня четверть</value>
+  </data>
+  <data name="MoonPhase_New" xml:space="preserve">
+    <value>🌑Новолуние</value>
+  </data>
+  <data name="MoonPhase_WaningCrescent" xml:space="preserve">
+    <value>🌘Старая луна</value>
+  </data>
+  <data name="MoonPhase_WaningGibbous" xml:space="preserve">
+    <value>🌖Убывающая луна</value>
+  </data>
+  <data name="MoonPhase_WaxingCrescent" xml:space="preserve">
+    <value>🌒Молодая луна</value>
+  </data>
+  <data name="MoonPhase_WaxingGibbous" xml:space="preserve">
+    <value>🌔Прибывающая луна</value>
+  </data>
+  <data name="NotificationsMenuContent" xml:space="preserve">
+    <value>Меню уведомлений</value>
+  </data>
+  <data name="NotificationTitle" xml:space="preserve">
+    <value>На текущий день</value>
+  </data>
+  <data name="Precipitation" xml:space="preserve">
+    <value>Осадки: {0} ({1}mm)</value>
+  </data>
+  <data name="Precipitation_Mixed" xml:space="preserve">
+    <value>☁️Смешанные</value>
+  </data>
+  <data name="Precipitation_None" xml:space="preserve">
+    <value>🌄Нет</value>
+  </data>
+  <data name="Precipitation_Other" xml:space="preserve">
+    <value>☁️Другие</value>
+  </data>
+  <data name="Precipitation_Rain" xml:space="preserve">
+    <value>🌧️Дождь</value>
+  </data>
+  <data name="Precipitation_Snow" xml:space="preserve">
+    <value>🌨️Снег</value>
+  </data>
+  <data name="RealFeelTemperature" xml:space="preserve">
+    <value>ощущается как: {0}℃</value>
+  </data>
+  <data name="SettingsMenuContent" xml:space="preserve">
+    <value>Меню настроек</value>
+  </data>
+  <data name="SunPeriod" xml:space="preserve">
+    <value>Период солнца: {0}</value>
+  </data>
+  <data name="Temperature" xml:space="preserve">
+    <value>Температура: {0}℃</value>
+  </data>
+  <data name="Thunderstorm" xml:space="preserve">
+    <value>Грозовой фронт: {0}</value>
+  </data>
+  <data name="Thunderstorm_Guaranteed" xml:space="preserve">
+    <value>🌩️Гарантированно</value>
+  </data>
+  <data name="Thunderstorm_Maybe" xml:space="preserve">
+    <value>🌩️Возможно</value>
+  </data>
+  <data name="Thunderstorm_None" xml:space="preserve">
+    <value>🌄Нет</value>
+  </data>
+  <data name="Thunderstorm_Probably" xml:space="preserve">
+    <value>🌩️Вероятно</value>
+  </data>
+  <data name="TimeAskNotificationsMessage" xml:space="preserve">
+    <value>Введите время</value>
+  </data>
+  <data name="TimeNotificationsButton" xml:space="preserve">
+    <value>Время</value>
+  </data>
+  <data name="TimeZoneAskSettingsMessage" xml:space="preserve">
+    <value>Введите параметры часового пояса</value>
+  </data>
+  <data name="TimeZoneSettingsButton" xml:space="preserve">
+    <value>Настройки часового пояса</value>
+  </data>
+  <data name="Today+0" xml:space="preserve">
+    <value>Сегодня</value>
+  </data>
+  <data name="Today+1" xml:space="preserve">
+    <value>Завтра</value>
+  </data>
+  <data name="Today+2" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="Today+3" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="Today+4" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="WindSpeed" xml:space="preserve">
+    <value>Скорость ветра: {0}km/h</value>
+  </data>
+</root>
