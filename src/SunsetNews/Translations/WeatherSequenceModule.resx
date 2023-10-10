@@ -147,9 +147,6 @@
   <data name="DayOfWeek" xml:space="preserve">
     <value>Day of week</value>
   </data>
-  <data name="DayOfWeekNotificationsButton" xml:space="preserve">
-    <value>Day of week</value>
-  </data>
   <data name="DayOfWeek_Friday" xml:space="preserve">
     <value>Friday</value>
   </data>
@@ -173,6 +170,15 @@
   </data>
   <data name="DayPrompt" xml:space="preserve">
     <value>For what period is the forecast?</value>
+  </data>
+  <data name="DaysOfWeekAskNotificationsMessage" xml:space="preserve">
+    <value>Enter days of week pattern
+Pattern example: +--+-+- 
+"+" - selected, "-" - unselected
+ </value>
+  </data>
+  <data name="DaysOfWeekNotificationsButton" xml:space="preserve">
+    <value>Day of week</value>
   </data>
   <data name="DisableNotificationsButton" xml:space="preserve">
     <value>Disable</value>

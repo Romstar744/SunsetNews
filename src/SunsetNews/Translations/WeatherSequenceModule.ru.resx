@@ -130,24 +130,21 @@
     <value>Облачность: {0}</value>
   </data>
   <data name="Cloudiness_Clear" xml:space="preserve">
-    <value>Ясно</value>
+    <value>☀️Ясно</value>
   </data>
   <data name="Cloudiness_MainlyCloudy" xml:space="preserve">
-    <value>В основном облачно</value>
+    <value>☁️В основном облачно</value>
   </data>
   <data name="Cloudiness_ModerateCloudy" xml:space="preserve">
-    <value>Умеренная облачность</value>
+    <value>🌥️Умеренная облачность</value>
   </data>
   <data name="Cloudiness_PartlyCloudy" xml:space="preserve">
-    <value>Частичная облачность</value>
+    <value>🌤️Частичная облачность</value>
   </data>
   <data name="Cloudiness_VariableCloudy" xml:space="preserve">
-    <value>Переменная облачность</value>
+    <value>⛅Переменная облачность</value>
   </data>
   <data name="DayOfWeek" xml:space="preserve">
-    <value>День недели</value>
-  </data>
-  <data name="DayOfWeekNotificationsButton" xml:space="preserve">
     <value>День недели</value>
   </data>
   <data name="DayOfWeek_Friday" xml:space="preserve">
@@ -174,11 +171,20 @@
   <data name="DayPrompt" xml:space="preserve">
     <value>На какой период прогноз?</value>
   </data>
+  <data name="DaysOfWeekAskNotificationsMessage" xml:space="preserve">
+    <value>Введите дни, когда будут приходить уведомления в формате:
+Пример: +--+-+- 
+"+" - выбрано, "-" - не выбрано
+ </value>
+  </data>
+  <data name="DaysOfWeekNotificationsButton" xml:space="preserve">
+    <value>День недели</value>
+  </data>
   <data name="DisableNotificationsButton" xml:space="preserve">
-    <value>Выключение</value>
+    <value>Выключить</value>
   </data>
   <data name="EnableNotificationsButton" xml:space="preserve">
-    <value>Включение</value>
+    <value>Включить</value>
   </data>
   <data name="ErrorDuringProcess" xml:space="preserve">
     <value>Не удалось вывести результат</value>
@@ -199,7 +205,7 @@
     <value>Неверный региональный код</value>
   </data>
   <data name="LangAskSettingsMessage" xml:space="preserve">
-    <value>Задать параметры языка</value>
+    <value>Введите региональный код</value>
   </data>
   <data name="LanguageSettingsButton" xml:space="preserve">
     <value>Настройки языка</value>
@@ -208,28 +214,28 @@
     <value>Фаза луны: {0}</value>
   </data>
   <data name="MoonPhase_FirstQuarter" xml:space="preserve">
-    <value>Первая четверть</value>
+    <value>🌓Первая четверть</value>
   </data>
   <data name="MoonPhase_Full" xml:space="preserve">
-    <value>Полнолуние</value>
+    <value>🌕Полнолуние</value>
   </data>
   <data name="MoonPhase_LastQuarter" xml:space="preserve">
-    <value>Последня четверть</value>
+    <value>🌗Последня четверть</value>
   </data>
   <data name="MoonPhase_New" xml:space="preserve">
-    <value>Новолуние</value>
+    <value>🌑Новолуние</value>
   </data>
   <data name="MoonPhase_WaningCrescent" xml:space="preserve">
-    <value>Старая луна</value>
+    <value>🌘Старая луна</value>
   </data>
   <data name="MoonPhase_WaningGibbous" xml:space="preserve">
-    <value>Убывающая луна</value>
+    <value>🌖Убывающая луна</value>
   </data>
   <data name="MoonPhase_WaxingCrescent" xml:space="preserve">
-    <value>Молодая луна</value>
+    <value>🌒Молодая луна</value>
   </data>
   <data name="MoonPhase_WaxingGibbous" xml:space="preserve">
-    <value>Прибывающая луна</value>
+    <value>🌔Прибывающая луна</value>
   </data>
   <data name="NotificationsMenuContent" xml:space="preserve">
     <value>Меню уведомлений</value>
@@ -241,19 +247,19 @@
     <value>Осадки: {0} ({1}mm)</value>
   </data>
   <data name="Precipitation_Mixed" xml:space="preserve">
-    <value>Смешанные</value>
+    <value>☁️Смешанные</value>
   </data>
   <data name="Precipitation_None" xml:space="preserve">
-    <value>Нет</value>
+    <value>🌄Нет</value>
   </data>
   <data name="Precipitation_Other" xml:space="preserve">
-    <value>Другие</value>
+    <value>☁️Другие</value>
   </data>
   <data name="Precipitation_Rain" xml:space="preserve">
-    <value>Дождь</value>
+    <value>🌧️Дождь</value>
   </data>
   <data name="Precipitation_Snow" xml:space="preserve">
-    <value>Снег</value>
+    <value>🌨️Снег</value>
   </data>
   <data name="RealFeelTemperature" xml:space="preserve">
     <value>ощущается как: {0}℃</value>
@@ -271,25 +277,25 @@
     <value>Грозовой фронт: {0}</value>
   </data>
   <data name="Thunderstorm_Guaranteed" xml:space="preserve">
-    <value>Гарантированно</value>
+    <value>🌩️Гарантированно</value>
   </data>
   <data name="Thunderstorm_Maybe" xml:space="preserve">
-    <value>Возможно</value>
+    <value>🌩️Возможно</value>
   </data>
   <data name="Thunderstorm_None" xml:space="preserve">
-    <value>Нет</value>
+    <value>🌄Нет</value>
   </data>
   <data name="Thunderstorm_Probably" xml:space="preserve">
-    <value>Вероятно</value>
+    <value>🌩️Вероятно</value>
   </data>
   <data name="TimeAskNotificationsMessage" xml:space="preserve">
-    <value>Задать время</value>
+    <value>Введите время</value>
   </data>
   <data name="TimeNotificationsButton" xml:space="preserve">
     <value>Время</value>
   </data>
   <data name="TimeZoneAskSettingsMessage" xml:space="preserve">
-    <value>Задать параметры часового пояса</value>
+    <value>Введите параметры часового пояса</value>
   </data>
   <data name="TimeZoneSettingsButton" xml:space="preserve">
     <value>Настройки часового пояса</value>

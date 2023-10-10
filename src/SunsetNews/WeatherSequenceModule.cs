@@ -113,11 +113,20 @@ internal sealed class WeatherSequenceModule : ISequenceModule, ISchedulerModule
 		var currentConfig = _notificationPreferences.Get(awakeMessage.Chat.Id);
 
 		var menuMessage = await awakeMessage.Chat.SendMessageAsync(new MessageSendModel(_localizer["NotificationsMenuContent"], new(
-			new MessageButton("toggle", currentConfig.IsActive() ? _localizer["DisableNotificationsButton"] : _localizer["EnableNotificationsButton"]),
-			new MessageButton("city", _localizer["CityNotificationsButton"]),
-			new MessageButton("day", _localizer["DaysOfWeekNotificationsButton"]),
-			new MessageButton("time", _localizer["TimeNotificationsButton"]),
-			new MessageButton("exit", _localizer["ExitNotificationsButton"])
+			
+			new MessageButton[][]
+			{
+				[
+					new MessageButton("toggle", currentConfig.IsActive() ? _localizer["DisableNotificationsButton"] : _localizer["EnableNotificationsButton"]),
+					new MessageButton("exit", _localizer["ExitNotificationsButton"]),
+				],
+				[
+					new MessageButton("city", _localizer["CityNotificationsButton"]),
+					new MessageButton("day", _localizer["DaysOfWeekNotificationsButton"]),
+					new MessageButton("time", _localizer["TimeNotificationsButton"])
+				]
+			}
+			
 		)));
 
 		var clickedButton = new ButtonWaitCondition(menuMessage);
