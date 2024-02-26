@@ -1,0 +1,23 @@
+﻿{
+	"Telegram": 
+	{
+		"Token": "6537419408:AAG1RXB7su-PfO_kv2_H2GrLGV94nUD6_l8",
+		"StartCommand": "start"
+	},
+
+	"Weather":
+	{
+		"AccuWeather":
+		{
+			"ApiKey": "HzpMGN35OniehuTjZLv3sQcXfUOSGGlP"
+		}
+	},
+
+	"UserPreferences":
+	{
+		"FileBased":
+		{
+			"BaseDirectory": "preferences"
+		}
+	}
+}
